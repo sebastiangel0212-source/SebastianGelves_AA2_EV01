@@ -1,0 +1,103 @@
+package com.sebastiangelves.ss.dao;
+
+import com.sebastiangelves.ss.model.Producto;
+import com.sebastiangelves.ss.util.DbUtil;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public class ProductoDaoImpl implements ProductoDao {
+
+    private static final String INSERT_SQL = "INSERT INTO producto (nombre, descripcion, precio, cantidad) VALUES (?, ?, ?, ?)";
+    private static final String SELECT_BY_ID_SQL = "SELECT * FROM producto WHERE id = ?";
+    private static final String SELECT_ALL_SQL = "SELECT * FROM producto";
+    private static final String UPDATE_SQL = "UPDATE producto SET nombre=?, descripcion=?, precio=?, cantidad=? WHERE id = ?";
+    private static final String DELETE_SQL = "DELETE FROM producto WHERE id = ?";
+
+    @Override
+    public Producto insertar(Producto producto) throws Exception {
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, producto.getNombre());
+            ps.setString(2, producto.getDescripcion());
+            ps.setDouble(3, producto.getPrecio());
+            ps.setInt(4, producto.getCantidad());
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    producto.setId(rs.getInt(1));
+                }
+            }
+            return producto;
+        }
+    }
+
+    @Override
+    public Optional<Producto> obtenerPorId(int id) throws Exception {
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SELECT_BY_ID_SQL)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Producto p = mapRowToProducto(rs);
+                    return Optional.of(p);
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<Producto> listarTodos() throws Exception {
+        List<Producto> lista = new ArrayList<>();
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SELECT_ALL_SQL);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                lista.add(mapRowToProducto(rs));
+            }
+        }
+        return lista;
+    }
+
+    @Override
+    public boolean actualizar(Producto producto) throws Exception {
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(UPDATE_SQL)) {
+            ps.setString(1, producto.getNombre());
+            ps.setString(2, producto.getDescripcion());
+            ps.setDouble(3, producto.getPrecio());
+            ps.setInt(4, producto.getCantidad());
+            ps.setInt(5, producto.getId());
+
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        }
+    }
+
+    @Override
+    public boolean eliminar(int id) throws Exception {
+        try (Connection conn = DbUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(DELETE_SQL)) {
+            ps.setInt(1, id);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        }
+    }
+
+    private Producto mapRowToProducto(ResultSet rs) throws SQLException {
+        Producto p = new Producto();
+        p.setId(rs.getInt("id"));
+        p.setNombre(rs.getString("nombre"));
+        p.setDescripcion(rs.getString("descripcion"));
+        p.setPrecio(rs.getDouble("precio"));
+        p.setCantidad(rs.getInt("cantidad"));
+        return p;
+    }
+}

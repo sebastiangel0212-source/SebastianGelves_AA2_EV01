@@ -1,0 +1,43 @@
+package com.sebastiangelves.ss.app;
+
+import com.sebastiangelves.ss.dao.ProductoDao;
+import com.sebastiangelves.ss.dao.ProductoDaoImpl;
+import com.sebastiangelves.ss.model.Producto;
+
+import java.util.List;
+import java.util.Optional;
+
+public class MainApp {
+    public static void main(String[] args) {
+        ProductoDao dao = new ProductoDaoImpl();
+
+        try {
+            // Insertar
+            Producto p1 = new Producto("Croqueta", "Croqueta para perros - 1kg", 25000.00, 10);
+            dao.insertar(p1);
+            System.out.println("Insertado: " + p1);
+
+            // Listar
+            List<Producto> productos = dao.listarTodos();
+            System.out.println("Listado:");
+            productos.forEach(System.out::println);
+
+            // Obtener por ID
+            Optional<Producto> opt = dao.obtenerPorId(p1.getId());
+            opt.ifPresent(producto -> System.out.println("Encontrado: " + producto));
+
+            // Actualizar
+            p1.setPrecio(23000.0);
+            p1.setCantidad(15);
+            boolean actualizado = dao.actualizar(p1);
+            System.out.println("Actualizado: " + actualizado);
+
+            // Eliminar
+            boolean eliminado = dao.eliminar(p1.getId());
+            System.out.println("Eliminado: " + eliminado);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
