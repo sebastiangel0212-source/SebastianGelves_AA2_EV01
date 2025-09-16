@@ -96,16 +96,3 @@ git add .
 git commit -m "Mensaje descriptivo"  
 git push
 
-Qué verificar antes de la entrega:
-
-- Que archivos .java estén completos (modelo, DAO, util, app)  
-- Que .gitignore esté funcionando (no se suben archivos como clases compiladas, logs, carpetas de IDE, etc.)  
-- Que pom.xml compile sin errores  
-- Que la base de datos esté creada y se conecte desde tu aplicación local  
-- Que los mensajes de commit sean claros  
-- Que en GitHub aparezcan los mismos archivos que tienes localmente  
-- Que hayas subido todos los cambios (git push) antes de hacer la entrega  
-
-Enlace del repositorio:
-
-https://github.com/sebastiangel0212-source/SebastianTriana
